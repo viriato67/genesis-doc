@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Sin Tabaco
+GenericName=Contador de ahorro sin fumar
+Comment=Controla los días que llevas sin fumar y el dinero ahorrado
+Exec=/home/user/SinTabaco
+Icon=face-smile
+Terminal=false
+Categories=Utility;Health;
+Keywords=tabaco;fumar;ahorro;salud;
+StartupNotify=true

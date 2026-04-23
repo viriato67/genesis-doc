@@ -1,2 +1,5 @@
 build
 source/user_guide/reference/_autosummary/
+source/smoking-tracker/build/
+source/smoking-tracker/dist/
+source/smoking-tracker/*.spec
