@@ -1,0 +1,60 @@
+============================================================
+  SIN HUMO - Control de Ahorros por Dejar de Fumar
+============================================================
+
+REQUISITOS
+----------
+- Windows 10 / 11
+- Python 3.8 o superior  →  https://www.python.org/downloads/
+  (al instalar, marca la casilla "Add Python to PATH")
+
+
+CÓMO USARLO
+-----------
+Opción A – Modo sencillo (recomendado para empezar):
+  1. Haz doble clic en "launch.bat"
+  2. La primera vez te pedirá:
+       · La fecha en que dejaste de fumar
+       · Cuánto gastabas en tabaco al día (€)
+       · Cuántos cigarrillos fumabas al día
+  3. ¡Listo! La app recordará tus datos para siempre.
+
+Opción B – Crear un .EXE independiente (sin necesitar Python):
+  1. Asegúrate de tener Python instalado
+  2. Doble clic en "build_exe.bat"
+  3. Se creará "dist\SinHumo.exe" que puedes mover donde quieras
+
+Opción C – Desde línea de comandos:
+  python savings_tracker.py
+
+
+QUÉ HACE LA APP
+---------------
+✅ Muestra los días que llevas sin fumar
+✅ Calcula cuánto has ahorrado:
+     - Esta semana / por semana
+     - Esta quincena / por quincena
+     - Este mes / por mes
+     - Proyección anual
+✅ Te dice qué puedes comprar con lo ahorrado
+✅ Te muestra tu próximo objetivo con barra de progreso
+✅ Lista de caprichos alcanzables (con cuenta atrás en días)
+✅ Estadísticas de salud: cigarrillos no fumados, minutos de vida ganados
+✅ Mensajes motivadores rotativos
+
+
+DÓNDE SE GUARDAN TUS DATOS
+---------------------------
+El archivo de configuración se guarda en:
+  C:\Users\<tu_usuario>\.sinhumo_config.json
+
+Para empezar desde cero, borra ese archivo y reinicia la app.
+
+
+¿PROBLEMAS?
+-----------
+Si la app no arranca, abre una ventana de comandos (cmd) y escribe:
+  python savings_tracker.py
+Así verás el mensaje de error exacto.
+
+============================================================
