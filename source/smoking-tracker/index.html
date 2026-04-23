@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sin Tabaco - Tu Contador de Ahorro</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:   #27ae60;
+      --green-l: #2ecc71;
+      --green-d: #1e8449;
+      --bg:      #0f1923;
+      --card:    #1a2535;
+      --card2:   #212f40;
+      --text:    #ecf0f1;
+      --muted:   #7f8c8d;
+      --accent:  #f39c12;
+      --danger:  #e74c3c;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ── SETUP ─────────────────────────────────────────── */
+    #setup-screen {
+      max-width: 480px;
+      margin: 40px auto;
+    }
+
+    .setup-logo {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .setup-logo .icon { font-size: 64px; display: block; margin-bottom: 8px; }
+
+    .setup-logo h1 {
+      font-size: 28px;
+      color: var(--green-l);
+      font-weight: 700;
+    }
+
+    .setup-logo p { color: var(--muted); margin-top: 6px; }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: var(--green-l);
+    }
+
+    .field { margin-bottom: 18px; }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .field input, .field select {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid #2c3e50;
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .field input:focus, .field select:focus {
+      border-color: var(--green);
+    }
+
+    .hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--green), var(--green-d));
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      letter-spacing: .5px;
+      transition: opacity .2s, transform .1s;
+    }
+
+    .btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    /* ── DASHBOARD ─────────────────────────────────────── */
+    #app-screen { display: none; max-width: 600px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    header h1 { font-size: 22px; color: var(--green-l); }
+
+    .btn-reset {
+      background: none;
+      border: 1.5px solid #2c3e50;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+
+    .btn-reset:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* Hero counter */
+    .hero {
+      background: linear-gradient(135deg, #1a3a2a, #12291e);
+      border: 1.5px solid var(--green-d);
+      border-radius: 20px;
+      padding: 30px 24px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .hero .days-label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    .hero .days-value {
+      font-size: 80px;
+      font-weight: 800;
+      color: var(--green-l);
+      line-height: 1;
+      margin: 8px 0 4px;
+    }
+
+    .hero .days-text { font-size: 22px; color: var(--text); font-weight: 600; }
+
+    .hero .since { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+    /* Stats grid */
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+
+    .stat {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px 16px;
+      text-align: center;
+    }
+
+    .stat .s-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+    .stat .s-value { font-size: 28px; font-weight: 700; color: var(--accent); margin: 4px 0 2px; }
+    .stat .s-sub { font-size: 12px; color: var(--muted); }
+
+    /* Current milestone banner */
+    .milestone-banner {
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .milestone-banner.achieved {
+      background: linear-gradient(135deg, #1a3a2a, #1e4530);
+      border: 1.5px solid var(--green-d);
+    }
+
+    .milestone-banner.upcoming {
+      background: var(--card);
+      border: 1.5px solid #2c3e50;
+    }
+
+    .milestone-banner .m-icon { font-size: 36px; flex-shrink: 0; }
+
+    .milestone-banner .m-body { flex: 1; }
+
+    .milestone-banner .m-tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .achieved .m-tag { color: var(--green-l); }
+    .upcoming .m-tag { color: var(--muted); }
+
+    .milestone-banner .m-title { font-size: 17px; font-weight: 600; color: var(--text); }
+    .milestone-banner .m-desc { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+    .milestone-banner .m-saving {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Progress bar */
+    .progress-section { background: var(--card); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+    .progress-section .p-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .progress-section .p-title { font-size: 14px; color: var(--muted); }
+    .progress-section .p-pct { font-size: 14px; font-weight: 700; color: var(--green-l); }
+
+    .progress-track {
+      height: 10px;
+      background: #2c3e50;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--green-l));
+      border-radius: 10px;
+      transition: width .6s ease;
+    }
+
+    .progress-section .p-from, .progress-section .p-to {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* All milestones list */
+    .section-title { font-size: 15px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px; font-weight: 600; }
+
+    .milestones-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+
+    .ml-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 1.5px solid transparent;
+      transition: border-color .2s;
+    }
+
+    .ml-item.done { border-color: var(--green-d); background: linear-gradient(135deg, #1a3a2a88, #12291e88); }
+    .ml-item.active { border-color: var(--accent); }
+
+    .ml-icon { font-size: 26px; width: 36px; text-align: center; flex-shrink: 0; }
+
+    .ml-body { flex: 1; min-width: 0; }
+    .ml-title { font-size: 15px; font-weight: 600; }
+    .ml-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .ml-right { text-align: right; flex-shrink: 0; }
+    .ml-days { font-size: 13px; font-weight: 700; color: var(--green-l); }
+    .ml-saving { font-size: 12px; color: var(--accent); margin-top: 2px; }
+
+    .ml-check { font-size: 20px; color: var(--green-l); }
+
+    /* Smoke free since */
+    .smoke-free-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--card2); border-radius: 10px;
+      padding: 10px 14px; margin-bottom: 20px;
+      font-size: 13px; color: var(--muted);
+    }
+
+    .smoke-free-bar strong { color: var(--text); }
+
+    /* Responsive */
+    @media (max-width: 400px) {
+      .hero .days-value { font-size: 60px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ SETUP SCREEN ═══════════════ -->
+<div id="setup-screen">
+  <div class="setup-logo">
+    <span class="icon">🚭</span>
+    <h1>Sin Tabaco</h1>
+    <p>Controla tu ahorro y mantente motivado</p>
+  </div>
+
+  <div class="card">
+    <h2>Configuración inicial</h2>
+
+    <div class="field">
+      <label>¿Cuándo dejaste de fumar?</label>
+      <input type="date" id="quit-date" />
+    </div>
+
+    <div class="field">
+      <label>Cigarrillos al día (antes)</label>
+      <input type="number" id="cigs-per-day" value="10" min="1" max="80" />
+    </div>
+
+    <div class="field">
+      <label>Precio del paquete (€)</label>
+      <input type="number" id="pack-price" value="5.50" min="1" step="0.10" />
+      <p class="hint">Se usará 20 cigarrillos por paquete para calcular el precio unitario.</p>
+    </div>
+
+    <div class="field">
+      <label>Tu nombre (opcional)</label>
+      <input type="text" id="user-name" placeholder="p.ej. Carlos" />
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="startTracking()">Empezar a ahorrar 🎯</button>
+</div>
+
+<!-- ═══════════════ APP SCREEN ═══════════════ -->
+<div id="app-screen">
+  <header>
+    <h1>🚭 Sin Tabaco</h1>
+    <button class="btn-reset" onclick="confirmReset()">↩ Reiniciar</button>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="days-label">Llevas</div>
+    <div class="days-value" id="days-count">0</div>
+    <div class="days-text" id="days-text">días sin fumar</div>
+    <div class="since" id="since-text"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="s-label">Ahorrado</div>
+      <div class="s-value" id="saved-total">0 €</div>
+      <div class="s-sub" id="saved-rate"></div>
+    </div>
+    <div class="stat">
+      <div class="s-label">No fumados</div>
+      <div class="s-value" id="cigs-saved">0</div>
+      <div class="s-sub">cigarrillos</div>
+    </div>
+    <div class="stat">
+      <div class="s-label">Tiempo ganado</div>
+      <div class="s-value" id="time-gained">0 h</div>
+      <div class="s-sub">de vida recuperada</div>
+    </div>
+    <div class="stat">
+      <div class="s-label">Próximo hito</div>
+      <div class="s-value" id="next-milestone-days">—</div>
+      <div class="s-sub" id="next-milestone-label">—</div>
+    </div>
+  </div>
+
+  <!-- Current milestone banner -->
+  <div id="current-milestone-banner" class="milestone-banner achieved"></div>
+
+  <!-- Progress to next -->
+  <div class="progress-section" id="progress-section">
+    <div class="p-header">
+      <span class="p-title" id="progress-label">Progreso al siguiente hito</span>
+      <span class="p-pct" id="progress-pct">0 %</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="p-from">
+      <span id="progress-from">Inicio</span>
+      <span id="progress-to"></span>
+    </div>
+  </div>
+
+  <!-- All milestones -->
+  <div class="section-title">Todos los hitos</div>
+  <div class="milestones-list" id="milestones-list"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+//  DATA
+// ─────────────────────────────────────────────────────────────
+
+const CIGS_PER_PACK = 20;
+const MINS_PER_CIG  = 11; // avg minutes of life lost per cigarette (WHO estimate)
+
+function buildMilestones(dailySaving) {
+  const s = (days) => +(dailySaving * days).toFixed(2);
+  return [
+    { days: 1,   icon: "☕", title: "¡Primer día!",            desc: `Con ${fmt(s(1))} € te invitas a un café con bollería`,         saving: s(1)   },
+    { days: 3,   icon: "🍺", title: "3 días de fuerza",        desc: `Con ${fmt(s(3))} € te tomas unas cañas con amigos`,            saving: s(3)   },
+    { days: 7,   icon: "🎬", title: "1 semana sin humo",       desc: `Con ${fmt(s(7))} € te vas al cine con palomitas`,              saving: s(7)   },
+    { days: 14,  icon: "🍽️", title: "2 semanas limpio",        desc: `Con ${fmt(s(14))} € te comes un buen menú en restaurante`,    saving: s(14)  },
+    { days: 21,  icon: "📚", title: "3 semanas de voluntad",   desc: `Con ${fmt(s(21))} € te compras varios libros`,                 saving: s(21)  },
+    { days: 30,  icon: "👕", title: "1 mes — ¡un mes!",        desc: `Con ${fmt(s(30))} € te compras una camiseta o pantalón`,      saving: s(30)  },
+    { days: 45,  icon: "🎮", title: "45 días de logro",        desc: `Con ${fmt(s(45))} € te compras un videojuego nuevo`,          saving: s(45)  },
+    { days: 60,  icon: "👟", title: "2 meses de libertad",     desc: `Con ${fmt(s(60))} € te compras unas zapatillas chulas`,       saving: s(60)  },
+    { days: 90,  icon: "🌮", title: "3 meses — tremendo",      desc: `Con ${fmt(s(90))} € haces una cena especial para dos`,        saving: s(90)  },
+    { days: 120, icon: "🎒", title: "4 meses de poder",        desc: `Con ${fmt(s(120))} € te equipas con ropa nueva`,              saving: s(120) },
+    { days: 180, icon: "✈️", title: "6 meses — eres crack",    desc: `Con ${fmt(s(180))} € te vas un fin de semana a otra ciudad`,  saving: s(180) },
+    { days: 270, icon: "🏨", title: "9 meses increíbles",      desc: `Con ${fmt(s(270))} € reservas un hotel de lujo para dos`,     saving: s(270) },
+    { days: 365, icon: "🌍", title: "¡1 AÑO SIN FUMAR!",       desc: `Con ${fmt(s(365))} € te vas de vacaciones al extranjero`,    saving: s(365) },
+    { days: 730, icon: "🏖️", title: "2 años — leyenda",        desc: `Con ${fmt(s(730))} € te haces un viaje de ensueño`,          saving: s(730) },
+  ];
+}
+
+function fmt(n) {
+  return n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+
+function fmtShort(n) {
+  if (n >= 1000) return (n / 1000).toLocaleString('es-ES', { maximumFractionDigits: 1 }) + ' k€';
+  return n.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+}
+
+// ─────────────────────────────────────────────────────────────
+//  SETUP
+// ─────────────────────────────────────────────────────────────
+
+window.onload = function () {
+  // Default quit date = today
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('quit-date').value = today;
+
+  const saved = localStorage.getItem('smokingTracker');
+  if (saved) {
+    showApp(JSON.parse(saved));
+  }
+};
+
+function startTracking() {
+  const quitDate  = document.getElementById('quit-date').value;
+  const cigsDay   = parseInt(document.getElementById('cigs-per-day').value, 10);
+  const packPrice = parseFloat(document.getElementById('pack-price').value);
+  const name      = document.getElementById('user-name').value.trim();
+
+  if (!quitDate || isNaN(cigsDay) || isNaN(packPrice)) {
+    alert('Por favor completa todos los campos obligatorios.');
+    return;
+  }
+
+  const data = { quitDate, cigsDay, packPrice, name };
+  localStorage.setItem('smokingTracker', JSON.stringify(data));
+  showApp(data);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  APP
+// ─────────────────────────────────────────────────────────────
+
+function showApp(data) {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  renderDashboard(data);
+
+  // Refresh every minute
+  setInterval(() => renderDashboard(data), 60000);
+}
+
+function renderDashboard(data) {
+  const { quitDate, cigsDay, packPrice, name } = data;
+
+  const pricePerCig  = packPrice / CIGS_PER_PACK;
+  const dailySaving  = pricePerCig * cigsDay;
+  const milestones   = buildMilestones(dailySaving);
+
+  const quitMs  = new Date(quitDate + 'T00:00:00').getTime();
+  const nowMs   = Date.now();
+  const diffMs  = nowMs - quitMs;
+  const days    = Math.max(0, Math.floor(diffMs / 86400000));
+  const totalSaved = +(dailySaving * days).toFixed(2);
+  const cigsAvoided = cigsDay * days;
+  const minsGained  = cigsAvoided * MINS_PER_CIG;
+  const hoursGained = (minsGained / 60).toFixed(1);
+
+  // Hero
+  document.getElementById('days-count').textContent = days;
+  document.getElementById('days-text').textContent  = days === 1 ? 'día sin fumar' : 'días sin fumar';
+  document.getElementById('since-text').textContent = `Desde el ${new Date(quitDate + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}${name ? ' · ¡Sigue, ' + name + '!' : ''}`;
+
+  // Stats
+  document.getElementById('saved-total').textContent = fmtShort(totalSaved);
+  document.getElementById('saved-rate').textContent  = fmt(dailySaving) + ' / día';
+  document.getElementById('cigs-saved').textContent  = cigsAvoided.toLocaleString('es-ES');
+  document.getElementById('time-gained').textContent = hoursGained + ' h';
+
+  // Find current and next milestone
+  let currentM = null;
+  let nextM    = null;
+  let prevM    = null;
+
+  for (let i = 0; i < milestones.length; i++) {
+    if (days >= milestones[i].days) {
+      currentM = milestones[i];
+      prevM    = i > 0 ? milestones[i - 1] : null;
+    } else {
+      if (!nextM) nextM = milestones[i];
+    }
+  }
+
+  // Next milestone stat
+  if (nextM) {
+    const daysLeft = nextM.days - days;
+    document.getElementById('next-milestone-days').textContent = daysLeft;
+    document.getElementById('next-milestone-label').textContent = daysLeft === 1 ? 'día para ' + nextM.icon : 'días para ' + nextM.icon;
+  } else {
+    document.getElementById('next-milestone-days').textContent = '🏆';
+    document.getElementById('next-milestone-label').textContent = '¡Todos conseguidos!';
+  }
+
+  // Current milestone banner
+  const banner = document.getElementById('current-milestone-banner');
+  if (currentM) {
+    banner.className = 'milestone-banner achieved';
+    banner.innerHTML = `
+      <div class="m-icon">${currentM.icon}</div>
+      <div class="m-body">
+        <div class="m-tag">✓ Hito alcanzado</div>
+        <div class="m-title">${currentM.title}</div>
+        <div class="m-desc">${currentM.desc}</div>
+      </div>
+      <div class="m-saving">${fmt(currentM.saving)}</div>
+    `;
+  } else {
+    banner.className = 'milestone-banner upcoming';
+    banner.innerHTML = `
+      <div class="m-icon">🎯</div>
+      <div class="m-body">
+        <div class="m-tag">Primer hito</div>
+        <div class="m-title">¡Aguanta hasta el primer día!</div>
+        <div class="m-desc">Solo un día y ya podrás celebrarlo con un café</div>
+      </div>
+    `;
+  }
+
+  // Progress bar to next milestone
+  const progressSection = document.getElementById('progress-section');
+  if (nextM) {
+    const fromDays = currentM ? currentM.days : 0;
+    const range    = nextM.days - fromDays;
+    const done     = days - fromDays;
+    const pct      = Math.min(100, Math.round((done / range) * 100));
+
+    document.getElementById('progress-label').textContent = `Hacia: ${nextM.title}`;
+    document.getElementById('progress-pct').textContent   = pct + ' %';
+    document.getElementById('progress-fill').style.width  = pct + '%';
+    document.getElementById('progress-from').textContent  = `Día ${fromDays}`;
+    document.getElementById('progress-to').textContent    = `Día ${nextM.days} — ${fmt(nextM.saving)}`;
+    progressSection.style.display = 'block';
+  } else {
+    progressSection.style.display = 'none';
+  }
+
+  // Full milestones list
+  const list = document.getElementById('milestones-list');
+  list.innerHTML = '';
+  milestones.forEach(m => {
+    const achieved = days >= m.days;
+    const isNext   = nextM && m.days === nextM.days;
+    const item     = document.createElement('div');
+    item.className = 'ml-item' + (achieved ? ' done' : isNext ? ' active' : '');
+    item.innerHTML = `
+      <div class="ml-icon">${m.icon}</div>
+      <div class="ml-body">
+        <div class="ml-title">${m.title}</div>
+        <div class="ml-sub">${m.desc}</div>
+      </div>
+      <div class="ml-right">
+        ${achieved
+          ? '<div class="ml-check">✓</div>'
+          : `<div class="ml-days">${m.days - days > 0 ? 'En ' + (m.days - days) + ' d.' : 'Hoy'}</div>`
+        }
+        <div class="ml-saving">${fmt(m.saving)}</div>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+//  RESET
+// ─────────────────────────────────────────────────────────────
+
+function confirmReset() {
+  if (confirm('¿Seguro que quieres reiniciar? Perderás todos tus datos.')) {
+    localStorage.removeItem('smokingTracker');
+    document.getElementById('app-screen').style.display  = 'none';
+    document.getElementById('setup-screen').style.display = '';
+  }
+}
+</script>
+</body>
+</html>
